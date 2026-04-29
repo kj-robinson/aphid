@@ -1,4 +1,4 @@
-﻿count,date,cage,warmingtreatment,warmingtreatment,sticky_wingless,sticky_winged,sentinel_wingless,sentinel_winged,focal_wingless,focal_winged
+﻿count,date,cage,predatortreatment,warmingtreatment,sticky_wingless,sticky_winged,sentinel_wingless,sentinel_winged,focal_wingless,focal_winged
 0,2025-07-15,WP1,predator,warmed,0,0,0,0,50,0
 0,2025-07-15,WP2,predator,warmed,0,0,0,0,50,0
 0,2025-07-15,WP3,predator,warmed,0,0,0,0,50,0
