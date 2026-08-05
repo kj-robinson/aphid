@@ -788,7 +788,6 @@ countdata_dispersed_means <- countdata_dispersed %>%
     dispersed_mean = mean(dispersed, na.rm = TRUE),
     sd_dispersed = sd(dispersed, na.rm = TRUE),
     se_dispersed = sd_dispersed / sqrt(n),
-    
     sentinel_dispersed_mean = mean(sentinel_dispersed, na.rm = TRUE),
     sd_sentinel_dispersed = sd(sentinel_dispersed, na.rm = TRUE),
     se_sentinel_dispersed = sd_sentinel_dispersed / sqrt(n),
