@@ -199,7 +199,7 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
   scale_color_manual(
     name = "Warming",
     labels = c("No", "Yes"),
-    values = c("blue", "red")) +
+    values = c("steelblue1", "red3")) +
   scale_linetype_manual(
     name = "Warming",
     labels = c("No", "Yes"),
@@ -255,7 +255,7 @@ maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
   scale_color_manual(
     name = "Warming",
     labels = c("No", "Yes"),
-    values = c("blue", "red")) +
+    values = c("steelblue1", "red3")) +
   scale_linetype_manual(
     name = "Warming",
     labels = c("No", "Yes"),
@@ -278,7 +278,7 @@ maxtemp
 focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color = warmingtreatment, shape = predatortreatment)) +
   labs(x = "Date", y = "Number of aphids on focal plant") +
   theme_tess() +
-  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("blue", "red")) +
+  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
   geom_point(position = position_dodge(width = 0.5), size=2) +
   geom_errorbar(aes(ymin = mean_aphids - se, ymax = mean_aphids + se), width = 0, position = position_dodge(width = 0.5)) +
@@ -313,7 +313,7 @@ countdata_means_zoom <- countdata_means %>%
 zoomedcount <- ggplot(countdata_means_zoom, aes(x = date, y = mean_aphids, color = warmingtreatment, shape = predatortreatment)) +
   labs(x = "Date", y = "Number of aphids on focal plant") +
   theme_tess() +
-  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("blue", "red")) +
+  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
   geom_point(position = position_dodge(width = 0.5), size=2) +
   geom_errorbar(aes(ymin = mean_aphids - se, ymax = mean_aphids + se), width = 0, position = position_dodge(width = 0.5)) +
@@ -335,8 +335,8 @@ countdata$count <- factor(countdata$count)
 
 # model (original)
 lmfullmodel<-lmer(focal_aphids ~ predatortreatment * warmingtreatment * jd_sc + predatortreatment * warmingtreatment * I(jd_sc^2) + (1 | cage), data = countdata)
-Anova(lmfullmodel, type=2)
-
+abundancetable <- Anova(lmfullmodel, type=2)
+abundancetable
 #Response: focal_aphids
 #Chisq Df Pr(>Chisq)    
 #predatortreatment              0.0537  1    0.81681    
@@ -352,21 +352,13 @@ Anova(lmfullmodel, type=2)
 #significant effect of warmingtreatment
 
 #redoing glmm with ar1 as i believe ar1 is the correct way to do this now
-glmm_p <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * jd_sc + predatortreatment * warmingtreatment * I(jd_sc^2) +
-                      ar1(count + 0 | cage),
-                    family = poisson,
-                    data = countdata)
-glmm_g <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * jd_sc + predatortreatment * warmingtreatment * I(jd_sc^2) +
-                    ar1(count + 0 | cage),
-                  family = gaussian,
-                  data = countdata)
 
 glmm_nb <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * jd_sc + predatortreatment * warmingtreatment * I(jd_sc^2) +
                      ar1(count + 0 | cage),
                    family = nbinom2,
                    data = countdata)
 
-Anova(glmm_mod, type = 2)
+Anova(glmm_nb, type = 2)
 # seeing sig date/inverse date, interactions with pred*date and warm*date
 
 #trying GAMMs
@@ -447,88 +439,101 @@ countdata$predatortreatment <- factor(countdata$predatortreatment)
 countdata$warmingtreatment <- factor(countdata$warmingtreatment)
 
 #July 17
-lm198 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd198)
+lm198 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd198)
 Anova(lm198, type=2)
 coef(summary(lm198))
 #significant effect of warmingtreatment and an interaction with warmingxpred
 
 #July 21
-lm202 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd202)
+lm202 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd202)
 Anova(lm202, type=2)
 coef(summary(lm202))
 #nothing significant
 
 #July 24
-lm205 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd205)
+lm205 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd205)
 Anova(lm205, type=2)
 coef(summary(lm205))
-#nothing significant
+#nothing significant **changed to sig pred
 
 #July 28
-lm209 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd209)
+lm209 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2,  data = jd209)
 Anova(lm209, type=2)
 coef(summary(lm209))
-#predatortreatment weakly significant
+#predatortreatment weakly significant **changed to sig pred
 
 # July 31
-lm212 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd212)
+lm212 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd212)
 Anova(lm212, type=2)
 coef(summary(lm212))
 #predatortreatment marginally significant
 
 #August 5
-lm217 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd217)
+lm217 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd217)
 Anova(lm217, type=2)
 coef(summary(lm217))
 #predatortreatment marginally significant
 
 #August 7
-lm219 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd219)
+lm219 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2,  data = jd219)
 Anova(lm219, type=2)
 coef(summary(lm219))
 #nothing significant
 
 #August 11
-lm223 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd223)
+lm223 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd223)
 Anova(lm223, type=2)
 coef(summary(lm223))
 #nothing significant
 
 #August 14
-lm226 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd226)
+lm226 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd226)
 Anova(lm226, type=2)
 coef(summary(lm226))
 #nothing significant
 
 #August 18
-lm230 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd230)
+lm230 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd230)
 Anova(lm230, type=2)
 coef(summary(lm230))
 #strong significant effect of warmingtreatment
 
 #August 21
-lm233 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd233)
+lm233 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd233)
 Anova(lm233, type = 2)
 coef(summary(lm233))
 #significant effect of warmingtreatment
 
 #August 25
-lm237 <- lm(focal_aphids ~ predatortreatment * warmingtreatment, data = jd237)
+lm237 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd237)
 Anova(lm237, type = 2)
 coef(summary(lm237))
-#strong significant effect of warmingtreatment
+#strong significant effect of warmingtreatment **changed + marginal pred
 
 #August 28
-lm240 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd240)
+lm240 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd240)
 Anova(lm240, type = 2)
 coef(summary(lm240))
 #nothing significant
 
 #Sept 2
-lm245 <- lm(focal_aphids ~ predatortreatment * warmingtreatment,data = jd245)
+lm245 <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment, family = nbinom2, data = jd245)
 Anova(lm245, type = 2)
 coef(summary(lm245))
 #weak significant effect of predatortreatment
+
+# p-value correction (Benjamini-Hochberg)
+# vector of raw p-values
+raw_p_pred <- c(0.11323, 0.1553, 0.03073, 0.03498, 0.09931, 0.08799,0.1771, 0.9295, 0.9078, 0.418899, 0.39175, 0.066269, 0.3056, 0.1690)
+raw_p_warm <- c(0.2964, 0.1736, 0.27136, 0.88243, 0.43058, 0.35704, 0.1165, 0.5420, 0.5874, 0.001401, 0.01598, 0.003379, 0.1266, 0.3271)
+
+# Benjamini-Hochberg correction
+adjusted_p_pred <- p.adjust(raw_p_pred, method = "BH")
+adjusted_p_warm <- p.adjust(raw_p_warm, method = "BH")
+
+# view the results
+print(adjusted_p_pred)
+print(adjusted_p_warm)
 
 
 #### ABUNDANCE PEAKS ####
@@ -551,7 +556,7 @@ View(countdata_cagemax)
 
 # find means to plot
 countdata_means <- countdata %>%
-  mutate(prop = ((focal_winged + net_winged)/focal_aphids))%>%
+  mutate(focal_proportion = ((focal_winged + net_winged)/focal_aphids))%>%
   group_by(date, predatortreatment, warmingtreatment) %>%
   summarize(prop_winged = mean(prop, na.rm = TRUE), 
             n=n(),
@@ -575,15 +580,15 @@ propwinged <- ggplot(countdata_means,
       shape = predatortreatment)) +
   labs(x = "Date", y = "Proportion of winged aphids on focal plant") +
   theme_tess() +
-  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("blue", "red")) +
+  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
   geom_point(position = position_dodge(width = 0.5), size = 2) +
   geom_errorbar(aes(ymin = prop_winged - se_prop, ymax = prop_winged + se_prop),
     width = 0,
     position = position_dodge(width = 0.5)) +
   # lady beetle numbers added in (scaled to fit nicely with graph)
-  geom_step(data = countdata_filled,
-            aes(x = date, y = ladybug_total * (0.5 / 16)), inherit.aes = FALSE, colour = "forestgreen", linewidth = 1, na.rm = TRUE) +
+  #geom_step(data = countdata_filled,
+   #         aes(x = date, y = ladybug_total * (0.5 / 16)), inherit.aes = FALSE, colour = "forestgreen", linewidth = 1, na.rm = TRUE) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_line(data = countdata,
     aes(x = date, y = focal_winged / focal_aphids, group = cage, linetype = predatortreatment),
@@ -592,18 +597,18 @@ propwinged <- ggplot(countdata_means,
   geom_line(data = countdata_means,
     aes(x = date, y = prop_winged, linetype = predatortreatment)) +
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
-  scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"), date_labels = "%b %d") +
+  scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"), date_labels = "%b %d") #+
   # adding secondary axis + scaling
-  scale_y_continuous(limits = c(0, 0.5),
-    name = "Proportion of winged aphids on focal plant",
-    sec.axis = sec_axis(
-      ~ . * 32,
-      name = "Number of lady beetles",
-      breaks = seq(0, 16, by = 4))) +
-  theme(axis.line.y.right = element_line(colour = "forestgreen"),
-    axis.ticks.y.right = element_line(colour = "forestgreen"),
-    axis.text.y.right = element_text(colour = "forestgreen"),
-    axis.title.y.right = element_text(colour = "forestgreen"))
+  #scale_y_continuous(limits = c(0, 0.5),
+   # name = "Proportion of winged aphids on focal plant",
+   # sec.axis = sec_axis(
+  #    ~ . * 32,
+   #   name = "Number of lady beetles",
+  #    breaks = seq(0, 16, by = 4))) +
+  #theme(axis.line.y.right = element_line(colour = "forestgreen"),
+   # axis.ticks.y.right = element_line(colour = "forestgreen"),
+   # axis.text.y.right = element_text(colour = "forestgreen"),
+   # axis.title.y.right = element_text(colour = "forestgreen"))
 
 propwinged
 
@@ -611,21 +616,20 @@ propwinged
 
 countdata$cage <- as.factor(countdata$cage)
 
-dispersal_model_poly <- glmmTMB(
-  cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment * jd_sc + warmingtreatment * predatortreatment * I(jd_sc^2) + (1 | cage), family = betabinomial(), data = countdata)
-Anova(dispersal_model_poly, type = 2)
-coef(summary(dispersal_model_poly))
-
-# checking dispersion
-testDispersion(dispersal_model_poly)
-
+# changed back to a binomial model due to convergence issues from adding ar1 to this model
+dispersal_model_binom <- glmmTMB(
+  cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment * jd_sc +
+    warmingtreatment * predatortreatment * I(jd_sc^2) + ar1(count + 0 | cage),
+  family = binomial(),
+  data = countdata)
+Anova(dispersal_model_binom, type = 2)
 
 #### DAY BY DAY PROPORTION WINGED ANALYSIS ####
 
 ## analysis winged by julian day
 
 #July 17th 
-glmm198 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm198 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                    family = betabinomial(), data = jd198)
 Anova(glmm198,type = 2)
 fixef(glmm198)
@@ -636,7 +640,7 @@ testDispersion(glmm198)
 # not overdispersed
 
 #July 21st 
-glmm202 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm202 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                family = betabinomial(),  data = jd202)
 Anova(glmm202,type = 2)
 fixef(glmm202)
@@ -646,7 +650,7 @@ testDispersion(glmm202)
 # not overdispersed
 
 #July 24th 
-glmm205 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm205 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial, data = jd205)
 Anova(glmm205,type = 2)
 fixef(glmm205)
@@ -656,7 +660,7 @@ testDispersion(glmm205)
 # overdispersed
 
 #July 28th
-glmm209 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm209 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial, data = jd209)
 Anova(glmm209,type = 2)
 fixef(glmm209)
@@ -668,7 +672,7 @@ testDispersion(glmm209)
 # overdispersed
 
 #July 31st
-glmm212 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm212 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial, data = jd212)
 Anova(glmm212,type = 2)
 fixef(glmm212)
@@ -680,7 +684,7 @@ testDispersion(glmm212)
 # overdispersed
 
 #August 5th 
-glmm217 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm217 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd217)
 Anova(glmm217,type = 2)
 fixef(glmm217)
@@ -690,7 +694,7 @@ testDispersion(glmm217)
 # overdispersed
 
 #August 7th 
-glmm219 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm219 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial, data = jd219)
 Anova(glmm219,type = 2)
 fixef(glmm219)
@@ -701,7 +705,7 @@ testDispersion(glmm219)
 # overdispersed
 
 #August 11
-glmm223 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm223 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd223)
 Anova(glmm223, type = 2)
 fixef(glmm223)
@@ -711,7 +715,7 @@ testDispersion(glmm223)
 # overdispersed
 
 #August 14
-glmm226 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm226 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd226)
 Anova(glmm226,type = 2)
 fixef(glmm226)
@@ -721,7 +725,7 @@ testDispersion(glmm226)
 # overdispersed
 
 # August 18
-glmm230 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm230 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd230)
 Anova(glmm230,type = 2)
 fixef(glmm230)
@@ -731,7 +735,7 @@ testDispersion(glmm230)
 # overdispersed
 
 # August 21
-glmm233 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm233 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd233)
 Anova(glmm233,type = 2)
 fixef(glmm233)
@@ -741,7 +745,7 @@ testDispersion(glmm233)
 # overdispersed
 
 # August 25
-glmm237 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm237 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial, data = jd237)
 Anova(glmm237,type = 2)
 fixef(glmm237)
@@ -751,7 +755,7 @@ testDispersion(glmm237)
 # overdispersed
 
 # August 28
-glmm240 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm240 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd240)
 Anova(glmm240,type = 2)
 fixef(glmm240)
@@ -761,7 +765,7 @@ testDispersion(glmm240)
 # overdispersed
 
 # Sept 2
-glmm245 <- glmmTMB(cbind(focal_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
+glmm245 <- glmmTMB(cbind(focal_winged + net_winged, focal_wingless) ~ warmingtreatment * predatortreatment,
                  family = betabinomial,data = jd245)
 Anova(glmm245,type = 2)
 fixef(glmm245)
@@ -800,7 +804,7 @@ summary(countdata_dispersed_means)
 dispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = dispersed_mean, color = warmingtreatment, shape = predatortreatment)) +
   labs(x = "Date", y = "Proportion of dispersed aphids from focal plant") +
   theme_tess() +
-  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("blue", "red")) +
+  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
   geom_point(position = position_dodge(width = 0.5), size=2) +
   geom_errorbar(aes(ymin = dispersed_mean - se_dispersed, ymax = dispersed_mean + se_dispersed), width = 0, position = position_dodge(width = 0.5)) +
@@ -824,7 +828,7 @@ testDispersion(dispersed_model)
 sentineldispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = sentinel_dispersed_mean, color = warmingtreatment, shape = predatortreatment)) +
   labs(x = "Date", y = "Proportion of dispersed aphids to sentinel plant") +
   theme_tess() +
-  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("blue", "red")) +
+  scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
   geom_point(position = position_dodge(width = 0.5), size=2) +
   geom_errorbar(aes(ymin = sentinel_dispersed_mean - se_sentinel_dispersed, ymax = sentinel_dispersed_mean + se_sentinel_dispersed), width = 0, position = position_dodge(width = 0.5)) +
