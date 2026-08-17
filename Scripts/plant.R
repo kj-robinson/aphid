@@ -127,7 +127,7 @@ leavesfig
 threshold <- median(df$total_aphids, na.rm = TRUE)
 
 df <- df %>%
-  mutate(aphid_group = ifelse(total_aphids <= threshold, "Low aphids", "High aphids"))
+  mutate(aphid_group = ifelse(total_aphids <= threshold, "Low maximum aphid abundance", "High maximum aphid abundance"))
 
 df_means <- df %>%
   group_by(period, warmingtreatment, predatortreatment, aphid_group) %>%
@@ -188,7 +188,7 @@ heightfig <- ggplot(df_means,
                         shape = predatortreatment,
                         linetype = predatortreatment)) +
   labs(x = "Period",
-       y = "Height of focal plant") +
+       y = "Height of focal plant (cm)") +
   theme_tess() +
   scale_color_manual(name = "Warming",
                      labels = c("No", "Yes"),
@@ -226,7 +226,7 @@ heightfig <- ggplot(df_means,
   geom_hline(yintercept = 0,
              linetype = "dashed") +
   scale_x_discrete(labels = custom_labels) +
-  facet_wrap(~factor(aphid_group, levels = c("Low aphids", "High aphids"))) +
+  facet_wrap(~factor(aphid_group, levels = c("Low maximum aphid abundance", "High maximum aphid abundance"))) +
   coord_cartesian(ylim = c(60, 110))
 
 heightfig
