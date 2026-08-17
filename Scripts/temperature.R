@@ -54,7 +54,7 @@ df <- df %>%
 
 #plot all the data with each cage as a line
 
-cols <- c("unwarmed" = "blue", "warmed" = "red")
+cols <- c("unwarmed" = "steelblue1", "warmed" = "red3")
 
 p<-ggplot(df, aes(x = time, y = temperature, color = warmingtreatment, group=cage)) +
   geom_line()+
@@ -187,7 +187,7 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
   scale_color_manual(
     name = "Warming",
     labels = c("No", "Yes"),
-    values = c("blue", "red")) +
+    values = c("steelblue1", "red3")) +
   scale_linetype_manual(
     name = "Warming",
     labels = c("No", "Yes"),
@@ -218,7 +218,7 @@ maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
   scale_color_manual(
     name = "Warming",
     labels = c("No", "Yes"),
-    values = c("blue", "red")) +
+    values = c("steelblue1", "red3")) +
   scale_linetype_manual(
     name = "Warming",
     labels = c("No", "Yes"),
