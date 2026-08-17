@@ -556,14 +556,6 @@ View(countdata_cagemax)
 
 # find means to plot
 countdata_means <- countdata %>%
-  mutate(focal_proportion = ((focal_winged + net_winged)/focal_aphids))%>%
-  group_by(date, predatortreatment, warmingtreatment) %>%
-  summarize(prop_winged = mean(prop, na.rm = TRUE), 
-            n=n(),
-            sd_prop = sd(prop), 
-            se_prop = sd_prop/sqrt(n))
-
-countdata_means <- countdata %>%
   group_by(date, predatortreatment, warmingtreatment) %>%
   summarize(prop_winged = mean(focal_proportion, na.rm = TRUE), 
             n=sum(!is.na(focal_proportion)),
