@@ -236,8 +236,7 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
       ymin = meantempdaily - setemp,
       ymax = meantempdaily + setemp,
       colour = warmingtreatment),
-    width = 0) +
-  geom_point(data = df_dt,aes(x = date, y = meantemp, colour = warmingtreatment),alpha = 0.2)
+    width = 0)
   
 avgtemp
 
