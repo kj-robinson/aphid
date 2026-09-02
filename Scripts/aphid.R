@@ -342,15 +342,6 @@ lmfullmodel<-lmer(focal_aphids ~ predatortreatment * warmingtreatment *
 abundancetable <- Anova(lmfullmodel, type=2)
 abundancetable
 
-# glmm with negative binomial (and AR1 to account for autocorrelation)
-glmm_nb <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
-                     jd_sc + predatortreatment * warmingtreatment * 
-                     I(jd_sc^2) + ar1(count + 0 | cage),
-                   family = nbinom2,data = countdata)
-
-Anova(glmm_nb, type = 2)
-#sig date and date2 main effects, sig interactions with pred*date and warm*date and pred*date2
-
 # glmm with gaussian (and AR1 to account for autocorrelation)
 glmm_g <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
                      jd_sc + predatortreatment * warmingtreatment * 
@@ -366,6 +357,15 @@ glmm_p <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment *
                   family = poisson(link="log"),
                   data = countdata)
 Anova(glmm_p, type = 2)
+
+# glmm with negative binomial (and AR1 to account for autocorrelation) - this was the one we went with
+glmm_nb <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
+                     jd_sc + predatortreatment * warmingtreatment * 
+                     I(jd_sc^2) + ar1(count + 0 | cage),
+                   family = nbinom2,data = countdata)
+
+Anova(glmm_nb, type = 2)
+#sig date and date2 main effects, sig interactions with pred*date and warm*date and pred*date2
 
 # model comparisons/AICs for glmmTMBs (note - it's ok to compare anything run with glmmTMB with AIC, but cant compare glmmTMB vs. a lmer with AIC)
 AIC(glmm_g, glmm_nb, glmm_p)
