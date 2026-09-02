@@ -327,7 +327,7 @@ zoomedcount <- ggplot(countdata_means_zoom, aes(x = date, y = mean_aphids, color
 #zoomedcount
 
 
-#### GLOBAL APHID ABUNDANCE ANALYSIS ####
+#### MAIN APHID ABUNDANCE ANALYSIS ####
 
 # ensure jd is numeric and scaled for ease of analysis
 countdata$jd <- as.numeric(countdata$jd)
@@ -564,7 +564,7 @@ countdata_cagemax <- countdata %>%
 
 View(countdata_cagemax)
 
-#### GLOBAL PROPORTION WINGED FIGURE (Figure 2) ####
+#### PROPORTION WINGED FIGURE (Figure 2) ####
 
 # find means to plot
 countdata_means <- countdata %>%
@@ -616,7 +616,7 @@ propwinged <- ggplot(countdata_means,
 
 propwinged
 
-#### GLOBAL PROPORTION WINGED ANALYSIS ####
+#### MAIN PROPORTION WINGED ANALYSIS ####
 
 countdata$cage <- as.factor(countdata$cage)
 
@@ -778,7 +778,7 @@ fixef(glmm245)
 # overdispersed
 
 
-#### GLOBAL DISPERSAL LIKELIHOOD FIGURE (supp mat figure) ####
+#### DISPERSAL LIKELIHOOD FIGURE (supp mat figure) ####
 
 # prepare data frames and limit survey dates to before sentinel plant is removed from cages
 countdata_dispersed <- countdata %>%

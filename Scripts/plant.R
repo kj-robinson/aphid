@@ -28,14 +28,15 @@ theme_set(theme_tess())
 
 # import data
 df <- read_csv("Data/plant.csv") 
-view(df)
+#view(df)
 
 # import aphid data to look at maximum populations
 aphid_df <- read_csv("Data/aphid.csv")
 aphid_df <- aphid_df[!is.na(aphid_df$focal_wingless),]
 aphid_df <- aphid_df[!is.na(aphid_df$focal_winged),]
 
-# find maximum number of aphids per cage and use this as a covariate in analysis of height; copy this column over to plant
+# find maximum number of aphids per cage and use this as a 
+#covariate in analysis of height; copy this column over to plant
 aphid_df$total_aphids <- aphid_df$focal_winged + aphid_df$focal_wingless
 
 aphid_max <- aphid_df %>% 
@@ -310,12 +311,12 @@ heightfig
 # 
 # Anova(model)
 
-# run 3 way repeated measures anova for plant height including max aphids reached in cage
+# run 3 way repeated measures anova for plant height including max aphids reached in cage. Note that "total_aphids" = max aphids, see code above for getting this from the aphid dataset
 # scale aphids first because huge numbers
 df$aphids_sc <- scale(df$total_aphids)
 
 model <- lmer(height ~ warmingtreatment * predatortreatment * 
                 period * aphids_sc + (1 | cage), data = df)
 Anova(model)
-# interaction between warming*time*aphids, effect of aphids
+# interaction between warming*time*aphids, significant effect of max aphids
 fixef(model)
