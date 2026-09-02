@@ -342,7 +342,23 @@ lmfullmodel<-lmer(focal_aphids ~ predatortreatment * warmingtreatment *
 abundancetable <- Anova(lmfullmodel, type=2)
 abundancetable
 
-# glmm with negative binomial (and AR1 to account for autocorrelation)
+# glmm with gaussian (and AR1 to account for autocorrelation)
+glmm_g <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
+                     jd_sc + predatortreatment * warmingtreatment * 
+                     I(jd_sc^2) + ar1(count + 0 | cage),
+                   family = gaussian,
+                   data = countdata)
+Anova(glmm_g, type = 2)
+
+# trying glmm with poisson (and AR1 to account for autocorrelation)
+glmm_p <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
+                    jd_sc + predatortreatment * warmingtreatment * 
+                    I(jd_sc^2) + ar1(count + 0 | cage),
+                  family = poisson(link="log"),
+                  data = countdata)
+Anova(glmm_p, type = 2)
+
+# glmm with negative binomial (and AR1 to account for autocorrelation) - this was the one we went with
 glmm_nb <- glmmTMB(focal_aphids ~ predatortreatment * warmingtreatment * 
                      jd_sc + predatortreatment * warmingtreatment * 
                      I(jd_sc^2) + ar1(count + 0 | cage),
@@ -428,7 +444,8 @@ countdata$predatortreatment <- factor(countdata$predatortreatment)
 countdata$warmingtreatment <- factor(countdata$warmingtreatment)
 
 #July 17
-lm198 <- glmmTMB(focal_aphids ~ warmingtreatment * predatortreatment, 
+
+lm198 <- glmmTMB(focal_aphids ~ warmingtreatment * predatortreatment,
                  family = nbinom2, data = jd198)
 Anova(lm198, type=2)
 coef(summary(lm198))
@@ -449,6 +466,7 @@ Anova(lm205, type=2)
 coef(summary(lm205))
 
 #July 28
+
 lm209 <- glmmTMB(focal_aphids ~ warmingtreatment * predatortreatment, 
                  family = nbinom2,  data = jd209)
 Anova(lm209, type=2)
@@ -855,6 +873,15 @@ coef(glmm212)
 glmm217 <- lm(dispersed ~ warmingtreatment * predatortreatment, data = djd217)
 Anova(glmm217, type = 2)
 coef(glmm217)
+
+glmm209 <- lm(dispersed ~ warmingtreatment * predatortreatment, data = djd209)
+Anova(glmm209, type = 2)
+
+glmm212 <- lm(dispersed ~ warmingtreatment * predatortreatment, data = djd212)
+Anova(glmm212, type = 2)
+
+glmm217 <- lm(dispersed ~ warmingtreatment * predatortreatment, data = djd217)
+Anova(glmm217, type = 2)
 
 #### GLOBAL DISPERSAL DIRECTION FIGURE (supp mat figure) ####
 
