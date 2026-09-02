@@ -127,7 +127,7 @@ df_means
 threshold <- median(df$total_aphids, na.rm = TRUE)
 
 df <- df %>%
-  mutate(aphid_group = ifelse(total_aphids <= threshold, "Low maximum aphid abundance", "High maximum aphid abundance"))
+  mutate(aphid_group = ifelse(total_aphids <= threshold, "Low aphid abundance", "High aphid abundance"))
 
 df_means <- df %>%
   group_by(period, warmingtreatment, predatortreatment, aphid_group) %>%
@@ -180,14 +180,14 @@ df_means <- df %>%
 # 
 # windows();heightfig
 
-# potential way to do this figure with facet wrapping (2 figures, 1 for low and 1 for high aphids)
+# way to this figure with facet wrapping (2 figures, 1 for low and 1 for high aphids)
 heightfig <- ggplot(df_means,
                     aes(x = period,
                         y = mean_height,
                         color = warmingtreatment,
                         shape = predatortreatment,
                         linetype = predatortreatment)) +
-  labs(x = "Period",
+  labs(x = "Time point",
        y = "Height of focal plant (cm)") +
   theme_tess() +
   scale_color_manual(name = "Warming",
@@ -226,11 +226,11 @@ heightfig <- ggplot(df_means,
   geom_hline(yintercept = 0,
              linetype = "dashed") +
   scale_x_discrete(labels = custom_labels) +
-  facet_wrap(~factor(aphid_group, levels = c("Low maximum aphid abundance", "High maximum aphid abundance"))) +
-  coord_cartesian(ylim = c(60, 110))
+  facet_wrap(~factor(aphid_group, levels = c("Low aphid abundance", "High aphid abundance")))+
+  theme(strip.text = element_text(size = 20)) +
+  coord_cartesian(ylim = c(65, 110))
 
-windows();heightfig
-
+heightfig
 # # also did a visreg plot!
 # 
 # library(visreg)
@@ -318,3 +318,4 @@ model <- lmer(height ~ warmingtreatment * predatortreatment *
                 period * aphids_sc + (1 | cage), data = df)
 Anova(model)
 # interaction between warming*time*aphids, effect of aphids
+fixef(model)

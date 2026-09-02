@@ -916,6 +916,7 @@ sentinel_dispersed_model <- glmmTMB(cbind(sentinel_aphids, sticky_aphids) ~
                                   family = binomial, 
                                   data = countdata_dispersed)
 Anova(sentinel_dispersed_model, type = 2)
+fixef(sentinel_dispersed_model)
 
 testDispersion(sentinel_dispersed_model)
 
