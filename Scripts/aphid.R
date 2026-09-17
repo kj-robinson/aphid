@@ -302,7 +302,7 @@ g$widths <- unit.pmax(g2$widths, g3$widths)
 grid.newpage()
 grid.draw(g)
 
-# filter to early count dates to look at predator effects (not using this anymore)
+# filter to early count dates to look at predator effects (not in paper)
 countdata_zoom <- countdata %>%
   filter(date >= as.Date("2025-07-15") & date <= as.Date("2025-07-21"))
 
@@ -324,7 +324,8 @@ zoomedcount <- ggplot(countdata_means_zoom, aes(x = date, y = mean_aphids, color
     date_labels = "%b %d"
   ) +
   geom_line(data = countdata_means_zoom, aes(x = date, y = mean_aphids, linetype = predatortreatment))
-#zoomedcount
+
+#windows();zoomedcount
 
 
 #### MAIN APHID ABUNDANCE ANALYSIS ####
@@ -590,9 +591,6 @@ propwinged <- ggplot(countdata_means,
   geom_errorbar(aes(ymin = prop_winged - se_prop, ymax = prop_winged + se_prop),
     width = 0,
     position = position_dodge(width = 0.5)) +
-  # lady beetle numbers added in (scaled to fit nicely with graph)
-  #geom_step(data = countdata_filled,
-   #         aes(x = date, y = ladybug_total * (0.5 / 16)), inherit.aes = FALSE, colour = "forestgreen", linewidth = 1, na.rm = TRUE) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_line(data = countdata,
     aes(x = date, y = focal_winged / focal_aphids, group = cage, linetype = predatortreatment),
@@ -602,19 +600,8 @@ propwinged <- ggplot(countdata_means,
     aes(x = date, y = prop_winged, linetype = predatortreatment)) +
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
   scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"), date_labels = "%b %d") #+
-  # adding secondary axis + scaling
-  #scale_y_continuous(limits = c(0, 0.5),
-   # name = "Proportion of winged aphids on focal plant",
-   # sec.axis = sec_axis(
-  #    ~ . * 32,
-   #   name = "Number of lady beetles",
-  #    breaks = seq(0, 16, by = 4))) +
-  #theme(axis.line.y.right = element_line(colour = "forestgreen"),
-   # axis.ticks.y.right = element_line(colour = "forestgreen"),
-   # axis.text.y.right = element_text(colour = "forestgreen"),
-   # axis.title.y.right = element_text(colour = "forestgreen"))
 
-propwinged
+#propwinged
 
 #### MAIN PROPORTION WINGED ANALYSIS ####
 
@@ -778,7 +765,7 @@ fixef(glmm245)
 # overdispersed
 
 
-#### DISPERSAL LIKELIHOOD FIGURE (supp mat figure) ####
+#### DISPERSAL LIKELIHOOD FIGURE (Figure S4) ####
 
 # prepare data frames and limit survey dates to before sentinel plant is removed from cages
 countdata_dispersed <- countdata %>%
@@ -823,14 +810,6 @@ dispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = dispersed_m
 dispersedplot
 
 #### GLOBAL DISPERSAL LIKELIHOOD ANALYSIS ####
-
-# original model
-# dispersed_model <- lmer(dispersed ~ warmingtreatment * 
-#                           predatortreatment * jd + (1 | cage), 
-#                         data = countdata_dispersed)
-# Anova(dispersed_model, type = 2)
-# 
-# testDispersion(dispersed_model)
 
 # model with AR1
 dispersal_model_AR <- glmmTMB(dispersed ~ warmingtreatment * 
@@ -883,7 +862,7 @@ Anova(glmm212, type = 2)
 glmm217 <- lm(dispersed ~ warmingtreatment * predatortreatment, data = djd217)
 Anova(glmm217, type = 2)
 
-#### GLOBAL DISPERSAL DIRECTION FIGURE (supp mat figure) ####
+#### GLOBAL DISPERSAL DIRECTION FIGURE (Figure S5) ####
 
 # plot dispersal to sentinel plant (success) vs to sticky card (failure)
 sentineldispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = sentinel_dispersed_mean, color = warmingtreatment, shape = predatortreatment)) +
