@@ -1,4 +1,4 @@
-Below is the metadata for the experimental data files associated with [...]
+Below is the metadata for the experimental data files associated with Robinson and Grainger "The effects of warming and predators on population dynamics and dispersal in a tri-trophic field system"
 
 #### **aphid.csv**
 
