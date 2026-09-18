@@ -1,8 +1,5 @@
 #### DATAFRAME SETUP + LIBRARY ####
 
-# check working directory
-getwd()
-
 # load packages
 library(dplyr)
 library(ggplot2)
@@ -25,9 +22,8 @@ library(mgcv)
 
 # open data file
 countdata <- read.csv("./Data/aphid.csv")
-countdata
 
-# change all count data into numeric variable
+# change all count data into numeric variables
 countdata <- countdata %>% mutate(sticky_winged = as.numeric(sticky_winged))
 countdata <- countdata %>% mutate(sticky_wingless = as.numeric(sticky_wingless))
 countdata <- countdata %>% mutate(sentinel_winged = as.numeric(sentinel_winged))
@@ -36,7 +32,7 @@ countdata <- countdata %>% mutate(focal_winged = as.numeric(focal_winged))
 countdata <- countdata %>% mutate(focal_wingless = as.numeric(focal_wingless))
 countdata <- countdata %>% mutate(date = as.Date(date))
 
-# predatortreatment and warmingtreatment as factors
+# make predatortreatment and warmingtreatment factors
 countdata <- countdata %>% mutate(predatortreatment = as.factor(predatortreatment))
 countdata <- countdata %>% mutate(warmingtreatment = as.factor(warmingtreatment))
 
@@ -51,7 +47,7 @@ countdata <- countdata %>%
 # add column converting date to julian date
 countdata$jd <- yday(countdata$date)
   
-# set up theme
+# set up ggplot theme
 theme_tess <- function () {
   theme_cowplot()+
     theme(axis.title.y = element_text(margin = margin(t = 0, r = 15, b = 0, l = 0)))+
@@ -72,8 +68,6 @@ theme_set(theme_tess())
 countdata <- countdata %>%
   mutate(focal_aphids = focal_wingless + focal_winged + net_winged, 
          focal_proportion = (focal_winged + net_winged)/focal_aphids)
-
-#View(countdata)
 
 # summarize counts by means, grouping by date observed, predatortreatment and warmingtreatment
 countdata_means <- countdata %>%
@@ -97,7 +91,6 @@ tempdata <- tempdata[!is.na(tempdata$temperature),]
 df <- tempdata %>%
   mutate(datetime = str_squish(datetime)) %>% #remove extra white spaces
   separate(datetime, into = c("date", "time"), sep = " ") 
-#view(df)
 
 # make a new column that specifies if a a row is in the day or night - day is 7:00 to 19:00
 df <- df %>%
@@ -123,7 +116,6 @@ df_dt <- df %>%
             n=n(),
             sd = sd(temperature),
             setemp = sd / sqrt(n))
-#view(df_dt)
 
 # find average daytime temperatures for warmed and unwarmed on each day of experiment
 df_dt_means <- df_dt %>% 
@@ -132,7 +124,6 @@ df_dt_means <- df_dt %>%
             n=n(),
             sd = sd(meantemp),
             setemp = sd/sqrt(n))
-#view(df_dt_means)
 
 # find maximum daytime temperatures for each cage per day
 df_dt_max <- df %>% 
@@ -142,7 +133,7 @@ df_dt_max <- df %>%
 # find average maximum daytime temperatures for warmed and unwarmed on each day of experiment
 df_dt_maxavg <- df_dt_max %>% 
   group_by(day_number, date, warmingtreatment) %>% 
-  summarise(daymax = max(cagemax))
+  summarise(daymax = mean(cagemax))
 
 # carries over last sampled number of lady beetles for days that were not sampled
 countdata_filled <- countdata %>%
@@ -157,7 +148,6 @@ dailymeansdn <- df %>%
             n=n(),
             sd = sd(temperature),
             setemp = sd / sqrt(n))
-#view(dailymeansdn)
 
 treatmentmeansdn <- dailymeansdn %>%
   group_by(warmingtreatment) %>%
@@ -166,7 +156,7 @@ treatmentmeansdn <- dailymeansdn %>%
             sd = sd(meantemp),
             se = sd / sqrt(n))
 
-# creating a data point that just tells my plot where to put the mean points
+# create a data point that just tells my plot where to place the mean temp data
 summary_date <- as.Date("2025-08-31")
 
 # jittering means
@@ -197,33 +187,25 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
     na.rm = TRUE) +
   labs(x = "Date") +
   theme_tess() +
-  scale_color_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("steelblue1", "red3")) +
-  scale_linetype_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("solid", "solid")) +
-  scale_x_date(
-    breaks = seq(
-      from = as.Date("2025-07-15"),
-      to   = as.Date("2025-09-02"),
-      by   = "1 week"),
-    date_labels = "%b %d",
-    limits = ymd("2025-07-15", "2025-09-02")) +
-  scale_y_continuous(
-    name = "Mean daily temperature (°C)",
-    sec.axis = sec_axis(
-      ~ (. - 12) / 0.4 + 2,
-      name = "Number of lady beetles")) +
+  scale_color_manual(name = "Warming",
+                labels = c("No", "Yes"),
+                values = c("steelblue1", "red3")) +
+  scale_linetype_manual(name = "Warming",
+                  labels = c("No", "Yes"),
+                  values = c("solid", "solid")) +
+  scale_x_date(breaks = seq(from = as.Date("2025-07-15"),
+                  to   = as.Date("2025-09-02"),
+                  by   = "1 week"),
+                  date_labels = "%b %d",
+                  limits = ymd("2025-07-15", "2025-09-02")) +
+  scale_y_continuous(name = "Mean daily temperature (°C)",
+              sec.axis = sec_axis(~ (. - 12) / 0.4 + 2,
+              name = "Number of lady beetles")) +
   theme(axis.line.y.right = element_line(colour = "forestgreen"), 
          axis.ticks.y.right = element_line(colour = "forestgreen"),
          axis.text.y.right = element_text(colour = "forestgreen")) +
-  geom_pointrange(
-    data = treatmentmeansdn,
-    aes(
-      x = x_plot,
+  geom_pointrange(data = treatmentmeansdn,
+    aes(x = x_plot,
       y = mean,
       ymin = mean - se,
       ymax = mean + se,
@@ -238,39 +220,8 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
       ymax = meantempdaily + setemp,
       colour = warmingtreatment),
     width = 0)
-  
-#avgtemp
 
-# plot treatment maximums thoughout growing season
-maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
-  geom_point(
-    aes(colour = warmingtreatment),
-    size = 2) +
-  geom_line(aes(colour = warmingtreatment,
-      linetype = warmingtreatment,
-      group = warmingtreatment),
-    alpha = 0.5) +
-  labs(x = "Date", y = "Mean maximum daily temperature (°C)") +
-  theme_tess() +
-  scale_color_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("steelblue1", "red3")) +
-  scale_linetype_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("solid", "solid")) +
-  scale_x_date(
-    breaks = seq(
-      from = as.Date("2025-07-15"),
-      to   = as.Date("2025-09-02"),
-      by   = "1 week"),
-    date_labels = "%b %d",
-    limits = ymd("2025-07-15",
-                 "2025-09-02")) +
-  geom_point(data = df_dt_max,aes(x = date, y = cagemax, colour = warmingtreatment),alpha = 0.2)
-
-#maxtemp
+#windows();avgtemp
 
 # plot of aphid abundances on focal plant over time (Fig. 1a)
 focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color = warmingtreatment, shape = predatortreatment)) +
@@ -288,8 +239,7 @@ focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color 
     date_labels = "%b %d"
   ) +
   geom_line(data = countdata_means, aes(x = date, y = mean_aphids, linetype = predatortreatment))
-  
-#focalplantcount
+
 
 ## multipanelled temp/abundance plot (Figure 1)
 grid.arrange(focalplantcount, avgtemp, nrow = 2)
@@ -301,6 +251,10 @@ g <- rbind(g2, g3, size = "first")
 g$widths <- unit.pmax(g2$widths, g3$widths)
 grid.newpage()
 grid.draw(g)
+
+ggsave(file="Figures/Fig 1.pdf", g, width = 30, 
+       height = 34, units = "cm")
+
 
 # filter to early count dates to look at predator effects (not in paper)
 countdata_zoom <- countdata %>%
@@ -326,6 +280,39 @@ zoomedcount <- ggplot(countdata_means_zoom, aes(x = date, y = mean_aphids, color
   geom_line(data = countdata_means_zoom, aes(x = date, y = mean_aphids, linetype = predatortreatment))
 
 #windows();zoomedcount
+
+
+#### MAX TEMP PLOT (Fig. S3) ####
+
+maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
+  geom_point(
+    aes(colour = warmingtreatment),
+    size = 2) +
+  geom_line(aes(colour = warmingtreatment,
+                linetype = warmingtreatment,
+                group = warmingtreatment),
+            alpha = 0.5) +
+  labs(x = "Date", y = "Maximum daily temperature (°C)") +
+  theme_tess() +
+  scale_color_manual(name = "Warming",
+                     labels = c("No", "Yes"),
+                     values = c("steelblue1", "red3")) +
+  scale_linetype_manual(name = "Warming",
+                        labels = c("No", "Yes"),
+                        values = c("solid", "solid")) +
+  scale_x_date(breaks = seq(
+    from = as.Date("2025-07-15"),
+    to   = as.Date("2025-09-02"),
+    by   = "1 week"),
+    date_labels = "%b %d",
+    limits = ymd("2025-07-15",
+                 "2025-09-02")) +
+  geom_point(data = df_dt_max,aes(x = date, y = cagemax, 
+                                  colour = warmingtreatment),alpha = 0.2)
+#windows();maxtemp
+
+ggsave(file="Figures/Fig S3.pdf", maxtemp, width = 24, 
+       height = 17, units = "cm")
 
 
 #### MAIN APHID ABUNDANCE ANALYSIS ####
@@ -535,19 +522,6 @@ Anova(lm245, type = 2)
 coef(summary(lm245))
 #weak significant effect of predatortreatment
 
-# # p-value correction (Benjamini-Hochberg)
-# # vector of raw p-values
-# raw_p_pred <- c(0.11323, 0.1553, 0.03073, 0.03498, 0.09931, 0.08799,0.1771, 0.9295, 0.9078, 0.418899, 0.39175, 0.066269, 0.3056, 0.1690)
-# raw_p_warm <- c(0.2964, 0.1736, 0.27136, 0.88243, 0.43058, 0.35704, 0.1165, 0.5420, 0.5874, 0.001401, 0.01598, 0.003379, 0.1266, 0.3271)
-# 
-# # Benjamini-Hochberg correction
-# adjusted_p_pred <- p.adjust(raw_p_pred, method = "BH")
-# adjusted_p_warm <- p.adjust(raw_p_warm, method = "BH")
-# 
-# # view the results
-# print(adjusted_p_pred)
-# print(adjusted_p_warm)
-
 
 #### ABUNDANCE PEAKS ####
 
@@ -601,7 +575,8 @@ propwinged <- ggplot(countdata_means,
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
   scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"), date_labels = "%b %d") #+
 
-#propwinged
+ggsave(file="Figures/Fig 2.pdf", propwinged, width = 25, 
+       height = 17, units = "cm")
 
 #### MAIN PROPORTION WINGED ANALYSIS ####
 
@@ -807,7 +782,9 @@ dispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = dispersed_m
   ) +
   geom_line(data = countdata_dispersed_means, aes(x = date, y = dispersed_mean, linetype = predatortreatment), position = position_dodge(width = 0.5))
 
-dispersedplot
+
+ggsave(file="Figures/Fig S4.pdf", dispersedplot, width = 25, 
+       height = 20, units = "cm")
 
 #### GLOBAL DISPERSAL LIKELIHOOD ANALYSIS ####
 
@@ -880,7 +857,9 @@ sentineldispersedplot <- ggplot(countdata_dispersed_means, aes(x = date, y = sen
   ) +
   geom_line(data = countdata_dispersed_means, aes(x = date, y = sentinel_dispersed_mean, linetype = predatortreatment), position = position_dodge(width = 0.5))
 
-sentineldispersedplot
+
+ggsave(file="Figures/Fig S5.pdf", sentineldispersedplot, width = 25, 
+       height = 20, units = "cm")
 
 ## global analysis of dispersed to sentinel plant vs sticky card
 
