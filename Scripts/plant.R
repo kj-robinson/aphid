@@ -77,6 +77,7 @@ df_means <- df %>%
   group_by(period, warmingtreatment, predatortreatment, aphid_group) %>%
   summarise(mean_height = mean(height, na.rm = TRUE), se = sd(height, na.rm = TRUE) / sqrt(n()), .groups = "drop")
 
+custom_labels <- c("Start", "End")
 
 #### Plant height figure (Fig. 3) #####
 heightfig <- ggplot(df_means,
@@ -128,7 +129,8 @@ heightfig <- ggplot(df_means,
   theme(strip.text = element_text(size = 20)) +
   coord_cartesian(ylim = c(65, 110))
 
-heightfig
+ggsave(file="Figures/Fig 3.pdf", heightfig, width = 22, 
+       height = 16, units = "cm")
 
 #### Plant height analysis ####
 

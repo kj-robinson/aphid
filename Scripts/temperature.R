@@ -24,14 +24,12 @@ theme_tess <- function () {
 
 #load data
 data<- read.csv("./Data/temperature.csv")
-view(data)
 data <- data[!is.na(data$temperature),]
 
 #separate data and time into two columns
 df <- data %>%
   mutate(datetime = str_squish(datetime)) %>% #remove extra white spaces
   separate(datetime, into = c("date", "time"), sep = " ") 
-view(df)
 
 #make a new column that specifies if a a row is in the day or night - day is 7:00 to 19:00
 df <- df %>%
@@ -52,24 +50,8 @@ df <- df %>%
   mutate(date = mdy(date),                # convert string to Date format (month-day-year)
     day_number = dense_rank(date))        # assign day numbers starting from earliest
 
-#plot all the data with each cage as a line
 
-cols <- c("unwarmed" = "steelblue1", "warmed" = "red3")
-
-p<-ggplot(df, aes(x = time, y = temperature, color = warmingtreatment, group=cage)) +
-  geom_line()+
-  facet_wrap(~ day_number) + #make a separate panel for each day
-  scale_color_manual(values = cols,
-                     name = "Warming", 
-                     labels=c("unwarmed", "warmed"), 
-                     breaks = c("Unwarmed","Warmed")) +
-  labs(x = "Time",y = "Temperature (°C)") +
-  theme_tess()
-p
-
-windows();p
-
-####FULL DAY (DAY + NIGHT) CALCULATIONS ####
+####FULL DAY (DAY + NIGHT) AND DAYTIME MEANS (Fig S2) ####
 
 #calculate means for each cage for each day (the daily average temp for each cage) 
 #this gives you one value per replicate (replicate = cage)
@@ -89,11 +71,9 @@ treatmentmeansdn <- dailymeansdn %>%
             n=n(),
             sd = sd(meantemp),
             se = sd / sqrt(n))
-view(treatmentmeansdn)
 
 #plot this
-
-p <- ggplot() +
+twentyfour <- ggplot() +
   geom_point(data = treatmentmeansdn,
              aes(x =warmingtreatment, y = mean), size=3)+
   geom_errorbar(data = treatmentmeansdn,
@@ -104,9 +84,8 @@ p <- ggplot() +
   scale_y_continuous(limits=c(22.5,25.5))+
   scale_x_discrete(labels=c("Unwarmed", "Warmed"))+
   theme_tess()
-p
   
-#### JUST DAYTIME CALCULATIONS ####
+# Just daytime calculations
 
 dayonly<-df%>%
   filter(period=="day")
@@ -128,11 +107,10 @@ treatmentmeansd<-dailymeansd%>%
             n=n(),
             sd = sd(meantemp),
             se = sd / sqrt(n))
-view(treatmentmeansd)
 
 #plot this
 
-p <- ggplot() +
+daytime <- ggplot() +
   geom_point(data = treatmentmeansd,
              aes(x =warmingtreatment, y = mean), size = 3)+
   geom_errorbar(data = treatmentmeansd, 
@@ -144,7 +122,9 @@ p <- ggplot() +
   scale_x_discrete(labels=c("Unwarmed", "Warmed"))+
   theme_tess()
 
-p
+#put the plots together
+
+
 
 #### MAX AND AVG TEMPERATURES ####
 
@@ -156,11 +136,6 @@ df_dt <- df %>%
             sd = sd(temperature),
             setemp = sd / sqrt(n))
 
-# find average daytime temperatures for warmed and unwarmed on each day of experiment
-df_dt_means <- df_dt %>% 
-  group_by(day_number, date, warmingtreatment) %>% 
-  summarise(meantempdaily = mean(meantemp))
-
 # find maximum daytime temperatures for each cage per day
 df_dt_max <- df %>% 
   group_by(cage, day_number, date, warmingtreatment) %>% 
@@ -169,65 +144,37 @@ df_dt_max <- df %>%
 # find average maximum daytime temperatures for warmed and unwarmed on each day of experiment
 df_dt_maxavg <- df_dt_max %>% 
   group_by(day_number, date, warmingtreatment) %>% 
-  summarise(daymax = max(cagemax))
+  summarise(daymax = mean(cagemax))
 
-# plot temp means throughout growing season
-avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
-  geom_point(
-    aes(colour = warmingtreatment),
-    size = 2) +
-  geom_line(
-    aes(
-      colour = warmingtreatment,
-      linetype = warmingtreatment,
-      group = warmingtreatment),
-    alpha = 0.5) +
-  labs(x = "Date", y = "Temperature (°C)") +
-  theme_tess() +
-  scale_color_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("steelblue1", "red3")) +
-  scale_linetype_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("solid", "solid")) +
-  scale_x_date(
-    breaks = seq(
-      from = as.Date("2025-07-15"),
-      to   = as.Date("2025-09-02"),
-      by   = "1 week"),
-    date_labels = "%b %d") +
-  scale_y_continuous(limits = c(12, 34))
 
-avgtemp
+#### MAX TEMP PLOT (Fig. S3) ####
 
-# plot treatment maximums thoughout growing season
 maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
   geom_point(
     aes(colour = warmingtreatment),
     size = 2) +
-  geom_line(
-    aes(
-      colour = warmingtreatment,
-      linetype = warmingtreatment,
-      group = warmingtreatment),
-    alpha = 0.5) +
-  labs(x = "Date", y = "Temperature (°C)") +
+  geom_line(aes(colour = warmingtreatment,
+                linetype = warmingtreatment,
+                group = warmingtreatment),
+            alpha = 0.5) +
+  labs(x = "Date", y = "Maximum daily temperature (°C)") +
   theme_tess() +
-  scale_color_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("steelblue1", "red3")) +
-  scale_linetype_manual(
-    name = "Warming",
-    labels = c("No", "Yes"),
-    values = c("solid", "solid")) +
-  scale_x_date(
-    breaks = seq(
-      from = as.Date("2025-07-15"),
-      to   = as.Date("2025-09-02"),
-      by   = "1 week"),
-    date_labels = "%b %d")
+  scale_color_manual(name = "Warming",
+                     labels = c("No", "Yes"),
+                     values = c("steelblue1", "red3")) +
+  scale_linetype_manual(name = "Warming",
+                        labels = c("No", "Yes"),
+                        values = c("solid", "solid")) +
+  scale_x_date(breaks = seq(
+    from = as.Date("2025-07-15"),
+    to   = as.Date("2025-09-02"),
+    by   = "1 week"),
+    date_labels = "%b %d",
+    limits = ymd("2025-07-15",
+                 "2025-09-02")) +
+  geom_point(data = df_dt_max,aes(x = date, y = cagemax, 
+                                  colour = warmingtreatment),alpha = 0.2)
+#windows();maxtemp
 
-maxtemp
+ggsave(file="Figures/Fig S3.pdf", maxtemp, width = 24, 
+       height = 17, units = "cm")

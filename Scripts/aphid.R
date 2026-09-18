@@ -281,40 +281,6 @@ zoomedcount <- ggplot(countdata_means_zoom, aes(x = date, y = mean_aphids, color
 
 #windows();zoomedcount
 
-
-#### MAX TEMP PLOT (Fig. S3) ####
-
-maxtemp <- ggplot(df_dt_maxavg, aes(x = date, y = daymax)) +
-  geom_point(
-    aes(colour = warmingtreatment),
-    size = 2) +
-  geom_line(aes(colour = warmingtreatment,
-                linetype = warmingtreatment,
-                group = warmingtreatment),
-            alpha = 0.5) +
-  labs(x = "Date", y = "Maximum daily temperature (°C)") +
-  theme_tess() +
-  scale_color_manual(name = "Warming",
-                     labels = c("No", "Yes"),
-                     values = c("steelblue1", "red3")) +
-  scale_linetype_manual(name = "Warming",
-                        labels = c("No", "Yes"),
-                        values = c("solid", "solid")) +
-  scale_x_date(breaks = seq(
-    from = as.Date("2025-07-15"),
-    to   = as.Date("2025-09-02"),
-    by   = "1 week"),
-    date_labels = "%b %d",
-    limits = ymd("2025-07-15",
-                 "2025-09-02")) +
-  geom_point(data = df_dt_max,aes(x = date, y = cagemax, 
-                                  colour = warmingtreatment),alpha = 0.2)
-#windows();maxtemp
-
-ggsave(file="Figures/Fig S3.pdf", maxtemp, width = 24, 
-       height = 17, units = "cm")
-
-
 #### MAIN APHID ABUNDANCE ANALYSIS ####
 
 # ensure jd is numeric and scaled for ease of analysis
