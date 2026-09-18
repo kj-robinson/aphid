@@ -117,14 +117,28 @@ daytime <- ggplot() +
                 aes(x = warmingtreatment,
                     ymin = mean - se,
                     ymax = mean + se), width = 0, linewidth=1.2) +
-  labs(x = "",y = "Temperature (°C)") +
+  labs(x = "",y = "Daytime temperature (°C)") +
   scale_y_continuous(limits=c(29.5,33.5))+
   scale_x_discrete(labels=c("Unwarmed", "Warmed"))+
   theme_tess()
 
 #put the plots together
 
+temp_panels <- plot_grid(
+  twentyfour,
+  daytime,
+  nrow = 1,
+  labels = c("A)", "B)"),
+  label_size = 20,
+  label_x = 0.02,
+  label_y = 0.98,
+  hjust = 0,
+  vjust = 1)
 
+windows();temp_panels
+
+ggsave("Figures/Fig S2.pdf",
+       temp_panels, width = 30,height = 15,units = "cm")
 
 #### MAX AND AVG TEMPERATURES ####
 
