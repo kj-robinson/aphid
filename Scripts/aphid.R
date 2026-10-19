@@ -229,16 +229,16 @@ focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color 
   scale_shape_manual(name = "Predator", 
                      labels = c("No", "Yes"), 
                      values = c(1, 16)) +
-  geom_point(position = position_dodge(width = 0.5), size=2) +
+  geom_point(position = position_dodge(width = 0.8), size=2) +
   geom_errorbar(aes(ymin = mean_aphids - se, 
                     ymax = mean_aphids + se), 
                 width = 0, 
-                position = position_dodge(width = 0.5)) +
+                position = position_dodge(width = 0.8)) +
   geom_hline(aes(yintercept = 0), linetype = "dashed") +
   geom_line(data = countdata, aes(x = date, 
                                   y = focal_aphids, group = cage, 
                                   linetype = predatortreatment), 
-            alpha = 1/10, position = position_dodge(width = 0.5)) +
+            alpha = 0.2, position = position_dodge(width = 0.8)) +
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
   scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"),
     date_labels = "%b %d") +
@@ -549,15 +549,15 @@ propwinged <- ggplot(countdata_means,
   theme_tess() +
   scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
-  geom_point(position = position_dodge(width = 0.5), size = 2) +
+  geom_point(position = position_dodge(width = 0.8), size = 2) +
   geom_errorbar(aes(ymin = prop_winged - se_prop, ymax = prop_winged + se_prop),
     width = 0,
-    position = position_dodge(width = 0.5)) +
+    position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_line(data = countdata,
     aes(x = date, y = focal_winged / focal_aphids, group = cage, linetype = predatortreatment),
-    alpha = 0.1,
-    position = position_dodge(width = 0.5)) +
+    alpha = 0.2,
+    position = position_dodge(width = 0.8)) +
   geom_line(data = countdata_means,
     aes(x = date, y = prop_winged, linetype = predatortreatment)) +
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
@@ -566,6 +566,7 @@ propwinged <- ggplot(countdata_means,
   annotate("text", x = as.Date("2025-07-17"), y = 0.055, label = "W", size = 5)+
   annotate("text", x = as.Date("2025-08-7"), y = 0.31, label = "WXP", size = 5)
 
+propwinged
 
 ggsave(file="Figures/Fig 2.pdf", propwinged, width = 25, 
        height = 17, units = "cm")
