@@ -100,7 +100,7 @@ heightfig <- ggplot(df_means,
                         values = c("dashed", "solid")) +
   geom_point(aes(group = interaction(warmingtreatment, predatortreatment)),
              position = position_dodge(width = 0.5),
-             size = 2) +
+             size = 2.7) +
   geom_errorbar(aes(ymin = mean_height - se,
                     ymax = mean_height + se,
                     group = interaction(warmingtreatment, predatortreatment)),
@@ -111,17 +111,17 @@ heightfig <- ggplot(df_means,
                  y = height,
                  group = cage),
              position = position_dodge(width = 0.5),
-             alpha = 1/10) +
+             alpha = 0.17) +
   geom_line(data = df,
             aes(x = period,
                 y = height,
                 group = cage,
                 linetype = predatortreatment),
-            alpha = 1/10,
+            alpha = 0.17,
             position = position_dodge(width = 0.5)) +
   geom_line(aes(group = interaction(warmingtreatment, predatortreatment),
                 linetype = predatortreatment),
-            position = position_dodge(width = 0.5)) +
+            position = position_dodge(width = 0.5),linewidth=0.8) +
   geom_hline(yintercept = 0,
              linetype = "dashed") +
   scale_x_discrete(labels = custom_labels) +
@@ -129,7 +129,7 @@ heightfig <- ggplot(df_means,
   theme(strip.text = element_text(size = 20)) +
   coord_cartesian(ylim = c(65, 110))
 
-ggsave(file="Figures/Fig 3.pdf", heightfig, width = 22, 
+ggsave(file="Figures/Fig 3.pdf", heightfig, width = 25, 
        height = 16, units = "cm")
 
 #### Plant height analysis ####

@@ -169,11 +169,10 @@ treatmentmeansdn <- treatmentmeansdn |>
 # plot of average temperatures (Figure 1b)
 avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
   geom_point(aes(colour = warmingtreatment),
-            size = 2) +
+            size = 2.35) +
   geom_line(aes(colour = warmingtreatment,
             linetype = warmingtreatment,
-            group = warmingtreatment),
-            alpha = 0.5) +
+            group = warmingtreatment)) +
   geom_step(data = countdata_filled,
     aes(x = date,
       y = (ladybug_total - 2) * 0.4 + 12),
@@ -220,7 +219,9 @@ avgtemp <- ggplot(df_dt_means, aes(x = date, y = meantempdaily)) +
 #windows();avgtemp
 
 # plot of aphid abundances on focal plant over time (Fig. 1a)
-focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color = warmingtreatment, shape = predatortreatment)) +
+focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, 
+                                               color = warmingtreatment, 
+                                               shape = predatortreatment)) +
   labs(x = "Date", y = "Number of aphids on focal plant") +
   theme_tess() +
   scale_color_manual(name = "Warming", 
@@ -229,7 +230,7 @@ focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color 
   scale_shape_manual(name = "Predator", 
                      labels = c("No", "Yes"), 
                      values = c(1, 16)) +
-  geom_point(position = position_dodge(width = 0.8), size=2) +
+  geom_point(position = position_dodge(width = 0.8), size=2.7) +
   geom_errorbar(aes(ymin = mean_aphids - se, 
                     ymax = mean_aphids + se), 
                 width = 0, 
@@ -238,11 +239,14 @@ focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color 
   geom_line(data = countdata, aes(x = date, 
                                   y = focal_aphids, group = cage, 
                                   linetype = predatortreatment), 
-            alpha = 0.2, position = position_dodge(width = 0.8)) +
-  scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
+            alpha = 0.15, position = position_dodge(width = 0.8)) +
+  scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), 
+                        values = c("dashed", "solid")) +
   scale_x_date(breaks = seq(from = as.Date("2025-07-15"), to = as.Date("2025-09-02"), by = "1 week"),
     date_labels = "%b %d") +
-  geom_line(data = countdata_means, aes(x = date, y = mean_aphids, linetype = predatortreatment))+
+  geom_line(data = countdata_means, aes(x = date, y = mean_aphids, 
+                                        linetype = predatortreatment), 
+            linewidth=0.8)+
   annotate("text", x = as.Date("2025-07-17"), y = 7000, label = "W", size = 5) +
   annotate("text", x = as.Date("2025-07-17"), y = 4000, label = "WXP", size = 5)+
   annotate("text", x = as.Date("2025-07-24"), y = 6000, label = "P", size = 5)+
@@ -257,12 +261,15 @@ focalplantcount <- ggplot(countdata_means, aes(x = date, y = mean_aphids, color 
 
 ## multi-panelled temp/abundance plot (Figure 1)
 
-focalplantcount_labeled <- ggdraw(focalplantcount) +
+aligned <- align_plots(focalplantcount, avgtemp,
+                       align = "v", axis = "l")
+
+focalplantcount_labeled <- ggdraw(aligned[[1]]) +
   draw_label("A)", x = 0.01, y = 0.99,
              hjust = 0, vjust = 1,
              size = 20)
 
-avgtemp_labeled <- ggdraw(avgtemp) +
+avgtemp_labeled <- ggdraw(aligned[[2]]) +
   draw_label("B)", x = 0.01, y = 0.99,
              hjust = 0, vjust = 1,
              size = 20)
@@ -520,14 +527,10 @@ countdata_treatmentmax <- countdata %>%
   group_by(predatortreatment, warmingtreatment) %>% 
   slice_max(focal_winged + focal_wingless)
 
-View(countdata_treatmentmax)
-
 # find peak populations per cage to see when aphids begin to decline
 countdata_cagemax <- countdata %>% 
   group_by(cage) %>% 
   slice_max(focal_winged + focal_wingless)
-
-View(countdata_cagemax)
 
 #### PROPORTION WINGED FIGURE (Figure 2) ####
 
@@ -549,24 +552,24 @@ propwinged <- ggplot(countdata_means,
   theme_tess() +
   scale_color_manual(name = "Warming", labels = c("No", "Yes"), values = c("steelblue1", "red3")) +
   scale_shape_manual(name = "Predator", labels = c("No", "Yes"), values = c(1, 16)) +
-  geom_point(position = position_dodge(width = 0.8), size = 2) +
+  geom_point(position = position_dodge(width = 0.8), size = 2.7) +
   geom_errorbar(aes(ymin = prop_winged - se_prop, ymax = prop_winged + se_prop),
     width = 0,
     position = position_dodge(width = 0.8)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_line(data = countdata,
     aes(x = date, y = focal_winged / focal_aphids, group = cage, linetype = predatortreatment),
-    alpha = 0.2,
+    alpha = 0.13,
     position = position_dodge(width = 0.8)) +
   geom_line(data = countdata_means,
-    aes(x = date, y = prop_winged, linetype = predatortreatment)) +
+    aes(x = date, y = prop_winged, linetype = predatortreatment), linewidth=0.8) +
   scale_linetype_manual(name = "Predator", labels = c("No", "Yes"), values = c("dashed", "solid")) +
   scale_x_date(breaks = seq(from = as.Date("2025-07-15"), 
                             to = as.Date("2025-09-02"), by = "1 week"), date_labels = "%b %d")+
   annotate("text", x = as.Date("2025-07-17"), y = 0.055, label = "W", size = 5)+
   annotate("text", x = as.Date("2025-08-7"), y = 0.31, label = "WXP", size = 5)
 
-propwinged
+#windows();propwinged
 
 ggsave(file="Figures/Fig 2.pdf", propwinged, width = 25, 
        height = 17, units = "cm")
